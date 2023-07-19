@@ -1,0 +1,38 @@
+ public function awards()
+    {
+        $data=AwardsModel::query()->firstOrFail();
+        $data = $this->translateModelWithoutIdAndTime($data);
+        $data['og_image'] = $this->getMedia($data['og_image']);
+
+        $awards = [];
+
+        $awards['og_image'] =  $data['og_image'];
+        $awards['meta_title'] = $data['meta_title'];
+        $awards['meta_description'] = $data['meta_description'];
+        $awards['og_title'] = $data['og_title'];
+        $awards['og_description'] = $data['og_description'];
+        $awards['og_url'] = $data['og_url'];
+        $awards['og_site_name'] = $data['og_site_name'];
+
+        foreach ($data['awards'] as $key => $items)
+        {
+            foreach ($items['attributes']['blocks'] as $keyBlock => $itemBlock){
+                $data['awards'][$key]['attributes']['blocks'][$keyBlock]['attributes']['awards_logo'] = $this->getMedia($itemBlock['attributes']['awards_logo']);
+                $data['awards'][$key]['attributes']['blocks'][$keyBlock]['attributes']['awards_photo'] = $this->getMedia($itemBlock['attributes']['awards_photo']);
+
+                $awards['awards'][$keyBlock]['awards_year'] = $items['attributes']['awards_year'];
+                $awards['awards'][$keyBlock]['awards_logo'] = $data['awards'][$key]['attributes']['blocks'][$keyBlock]['attributes']['awards_logo'];
+                $awards['awards'][$keyBlock]['awards_photo'] = $data['awards'][$key]['attributes']['blocks'][$keyBlock]['attributes']['awards_photo'];
+                $awards['awards'][$keyBlock]['awards_title'] = $itemBlock['attributes']['awards_title'];
+                $awards['awards'][$keyBlock]['awards_description'] = $itemBlock['attributes']['awards_description'];
+
+                foreach ($itemBlock['attributes']['texts'] as $keyText => $itemText) {
+                    $awards['awards'][$keyBlock]['text'][$keyText] = $itemText['attributes']['text'];
+                }
+            }
+        }
+        return response()->json([
+            'status'=>'success',
+            'data'=>$awards
+        ]);
+    }
